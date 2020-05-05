@@ -36,7 +36,7 @@
     </child>
     <child>
       <object id="Label_7" class="ttk.Label">
-        <property name="text" translatable="yes">Input File:</property>
+        <property name="text" translatable="yes">Original Input File:</property>
         <layout>
           <property name="column">1</property>
           <property name="propagate">True</property>
@@ -86,6 +86,7 @@
     <child>
       <object id="EncButton" class="ttk.Button">
         <property name="text" translatable="yes">Encryption</property>
+        <property name="command">on_encbutton_clicked</property>
         <layout>
           <property name="column">1</property>
           <property name="padx">20</property>
@@ -97,7 +98,8 @@
     </child>
     <child>
       <object id="DecButton" class="ttk.Button">
-        <property name="text" translatable="yes">Decryption</property>
+        <property name="text" translatable="yes">Open</property>
+        <property name="command">on_decbutton_clicked</property>
         <layout>
           <property name="column">1</property>
           <property name="padx">20</property>
