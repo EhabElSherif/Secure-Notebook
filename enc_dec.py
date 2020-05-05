@@ -4,6 +4,7 @@ from Crypto.Util import Counter
 from hashlib import pbkdf2_hmac,sha1
 from base64 import b64decode, b64encode
 from os.path import splitext
+from os import startfile
 
 def xor(x, y):
     return bytes(x[i] ^ y[i] for i in range(min(len(x), len(y))))
@@ -100,7 +101,7 @@ def decrypt(encFilePath,inputPassword):
         nonce = b64decode(nonce)
         ct = b64decode(ct)
         hmac = b64decode(hmac)
-
+        
     except BaseException as err:
         return {"error":True,"title":"Changed File","msg":"The encrypted file has been changed"}
 
@@ -116,4 +117,5 @@ def decrypt(encFilePath,inputPassword):
     decFile.write(data)
     encFile.close()
     decFile.close()
+    startfile(decFilePath)
     return {"error":False,"title":"Success","msg":"File is decrypted successfully\nDecrypted file is stored at the same folder with postfix -out.txt extension"}
