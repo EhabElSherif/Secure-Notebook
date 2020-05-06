@@ -36,6 +36,7 @@
     </child>
     <child>
       <object id="Label_7" class="ttk.Label">
+        <property name="font">{Century Gothic} 8 {}</property>
         <property name="text" translatable="yes">Original Input File:</property>
         <layout>
           <property name="column">1</property>
@@ -48,7 +49,7 @@
     <child>
       <object id="inputFilePath" class="pygubu.builder.widgets.pathchooserinput">
         <property name="type">file</property>
-        <bind add="" handler="on_path_changed" sequence="&lt;&lt;PathChooserPathChanged&gt;&gt;" />
+        <bind sequence="&lt;&lt;PathChooserPathChanged&gt;&gt;" handler="on_path_changed" add="" />
         <layout>
           <property name="column">1</property>
           <property name="ipady">2</property>
@@ -60,6 +61,7 @@
     </child>
     <child>
       <object id="Label_6" class="ttk.Label">
+        <property name="font">{Century Gothic} 8 {}</property>
         <property name="text" translatable="yes">Enter Encryption Password</property>
         <layout>
           <property name="column">1</property>
@@ -85,8 +87,8 @@
     </child>
     <child>
       <object id="EncButton" class="ttk.Button">
-        <property name="text" translatable="yes">Encryption</property>
         <property name="command">on_encbutton_clicked</property>
+        <property name="text" translatable="yes">Encryption</property>
         <layout>
           <property name="column">1</property>
           <property name="padx">20</property>
@@ -98,8 +100,8 @@
     </child>
     <child>
       <object id="DecButton" class="ttk.Button">
-        <property name="text" translatable="yes">Open</property>
         <property name="command">on_decbutton_clicked</property>
+        <property name="text" translatable="yes">Open</property>
         <layout>
           <property name="column">1</property>
           <property name="padx">20</property>
@@ -107,6 +109,16 @@
           <property name="propagate">True</property>
           <property name="row">7</property>
           <property name="sticky">e</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object id="ProgressLbl" class="ttk.Label">
+        <property name="font">{Century Gothic} 8 {}</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="propagate">True</property>
+          <property name="row">8</property>
         </layout>
       </object>
     </child>

@@ -27,14 +27,10 @@ def calculate_hmac(ct):
     return result
 
 def encrypt(inputFilePath,inputPassword):
-    encFilePath = splitext(inputFilePath)[0] + '.enc'
-
     try:
         inputFile = open(inputFilePath)
     except OSError as err:
         return {"error":True,"title":"File not found","msg":"Input file doesn't exist"}
-
-    encFile = open(encFilePath,'w')
 
     lines = inputFile.readlines()
     data = ''.join(lines).encode()
@@ -49,35 +45,36 @@ def encrypt(inputFilePath,inputPassword):
     cipher = DES.new(key, DES.MODE_CTR, counter=ctr)
     ct = cipher.encrypt(data)
 
-    key = b64encode(key).decode('utf-8')
-    nonce = b64encode(cipher.nonce).decode('utf-8')
-    ct = b64encode(ct).decode('utf-8')
-    hmac = b64encode(calculate_hmac(ct.encode())).decode('utf-8')
-
     print("Key:",key)
     print("Nonce:",nonce)
     print("Ciphertext:",ct)
-    print("HMAC:",hmac)
+    print("Encryption is completed successfully\n\n")
+    inputFile.close()
+
+    return {"error":False,"key":key,"nonce":nonce,"ct":ct}
+
+def write_ciphertext(inputFilePath,key,nonce,ct,hmac):
+    encFilePath = splitext(inputFilePath)[0] + '.enc'
+    encFile = open(encFilePath,'w')
+
+    key = b64encode(key).decode('utf-8')
+    nonce = b64encode(nonce).decode('utf-8')
+    ct = b64encode(ct).decode('utf-8')
+    hmac = b64encode(hmac).decode('utf-8')
 
     msg = key + nonce + ct + hmac
-
-    print("Encryption is completed successfully\n\n")
     encFile.write(msg)
-    inputFile.close()
     encFile.close()
     return {"error":False,"title":"Success","msg":"File is encrypted successfully\nEncrypted file is stored at the same folder with .enc extension"}
 
-
-def decrypt(encFilePath,inputPassword):
+def read_ciphertext(encFilePath,inputPassword):
     encryptedFilePathObj = splitext(encFilePath)
-    decFilePath = encryptedFilePathObj[0] + '-out.txt'
 
     try:
         encFile = open(encryptedFilePathObj[0]+'.enc')
     except OSError as err:
         return {"error":True,"title":"File not found","msg":"Encrypted file doesn't exist"}
 
-    decFile = open(decFilePath,mode="w")   
     encData = encFile.read()
     key = encData[0:12]
     nonce = encData[12:20]
@@ -97,16 +94,19 @@ def decrypt(encFilePath,inputPassword):
         if not(inputKey == key):
             return {"error":True,"title":"Incorrect Password","msg":"Please enter the correct password"}
 
-        inputHMAC = calculate_hmac(ct.encode())
         nonce = b64decode(nonce)
         ct = b64decode(ct)
         hmac = b64decode(hmac)
         
     except BaseException as err:
         return {"error":True,"title":"Changed File","msg":"The encrypted file has been changed"}
+    
+    return {"error":False,"key":key,"nonce":nonce,"ct":ct,"hmac":hmac}
 
-    if not(inputHMAC == hmac):
-        return {"error":True,"title":"Changed File","msg":"The encrypted file has been changed"}
+def decrypt(encFilePath,key,nonce,ct):
+    encryptedFilePathObj = splitext(encFilePath)
+    decFilePath = encryptedFilePathObj[0] + '-out.txt'
+    decFile = open(decFilePath,'w')
 
     # # 32-bit counter
     ctr = Counter.new(DES.block_size*4, prefix=nonce)
@@ -115,7 +115,5 @@ def decrypt(encFilePath,inputPassword):
 
     print("Decryption is completed successfully")
     decFile.write(data)
-    encFile.close()
     decFile.close()
     startfile(decFilePath)
-    return {"error":False,"title":"Success","msg":"File is decrypted successfully\nDecrypted file is stored at the same folder with postfix -out.txt extension"}
