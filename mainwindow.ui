@@ -37,7 +37,7 @@
     <child>
       <object id="Label_7" class="ttk.Label">
         <property name="font">{Century Gothic} 8 {}</property>
-        <property name="text" translatable="yes">Original Input File:</property>
+        <property name="text" translatable="yes">Input File:</property>
         <layout>
           <property name="column">1</property>
           <property name="propagate">True</property>

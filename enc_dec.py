@@ -6,24 +6,24 @@ from base64 import b64decode, b64encode
 from os.path import splitext
 from os import startfile
 
-def xor(x, y):
+def xor_block(x, y):
     return bytes(x[i] ^ y[i] for i in range(min(len(x), len(y))))
 
-def hmac_sha1(key_K, data):
+def hmac(key_K, data):
     if len(key_K) > 64:
         raise ValueError('The key must be <= 64 bytes in length')
     padded_K = key_K + b'\x00' * (64 - len(key_K))
     ipad = b'\x36' * 64
     opad = b'\x5c' * 64
-    h_inner = sha1(xor(padded_K, ipad))
+    h_inner = sha1(xor_block(padded_K, ipad))
     h_inner.update(data)
-    h_outer = sha1(xor(padded_K, opad))
+    h_outer = sha1(xor_block(padded_K, opad))
     h_outer.update(h_inner.digest())
     return h_outer.digest()
 
 def calculate_hmac(ct):
     k = b'\x0b' * 20
-    result = hmac_sha1(k, ct)
+    result = hmac(k, ct)
     return result
 
 def encrypt(inputFilePath,inputPassword):
@@ -70,6 +70,8 @@ def write_ciphertext(inputFilePath,key,nonce,ct,hmac):
 def read_ciphertext(encFilePath,inputPassword):
     encryptedFilePathObj = splitext(encFilePath)
 
+    if encryptedFilePathObj[1] != '.enc':
+        return {"error":True,"title":"Wrong File","msg":"Please make sure that you select .enc file to decrypt"}
     try:
         encFile = open(encryptedFilePathObj[0]+'.enc')
     except OSError as err:

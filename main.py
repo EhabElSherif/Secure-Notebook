@@ -81,7 +81,7 @@ class SecureNotebook(pygubu.TkApplication):
             messagebox.showerror("Insufficient Parameters","Make sure to enter the file path AND your password")
             return
 
-        self.progressLbl["text"]="Validating password..."
+        self.progressLbl["text"]="Validating file and password..."
         self.progressLbl.update()
         sleep(1)
 
