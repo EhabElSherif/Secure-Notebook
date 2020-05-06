@@ -6,25 +6,29 @@ from base64 import b64decode, b64encode
 from os.path import splitext
 from os import startfile
 
-def xor_block(x, y):
-    return bytes(x[i] ^ y[i] for i in range(min(len(x), len(y))))
+def xor_blocks(block1, block2):
+    return bytes(block1[i] ^ block2[i] for i in range(min(len(block1), len(block2))))
 
-def hmac(key_K, data):
-    if len(key_K) > 64:
-        raise ValueError('The key must be <= 64 bytes in length')
-    padded_K = key_K + b'\x00' * (64 - len(key_K))
-    ipad = b'\x36' * 64
-    opad = b'\x5c' * 64
-    h_inner = sha1(xor_block(padded_K, ipad))
-    h_inner.update(data)
-    h_outer = sha1(xor_block(padded_K, opad))
-    h_outer.update(h_inner.digest())
-    return h_outer.digest()
+def calculate_hmac(data):
+    key = b'\x09' * 20
+    blockSize = 64
 
-def calculate_hmac(ct):
-    k = b'\x0b' * 20
-    result = hmac(k, ct)
-    return result
+    ipadding = b'\x36' * blockSize
+    opadding = b'\x5c' * blockSize
+
+    # Fill the key to blockSize
+    padded_K = key + b'\x00' * (blockSize - len(key))
+
+    hInner = sha1(xor_blocks(padded_K, ipadding))
+    hInner.update(data)
+
+    hInnerBytes = hInner.digest()
+
+    hOuter = sha1(xor_blocks(padded_K, opadding))
+    hOuter.update(hInnerBytes)
+    
+    hmac = hOuter.digest()
+    return hmac
 
 def encrypt(inputFilePath,inputPassword):
     try:
