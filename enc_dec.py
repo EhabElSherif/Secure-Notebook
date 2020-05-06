@@ -37,32 +37,24 @@ def encrypt(inputFilePath,inputPassword):
 
     # b64encode(hashlib.sha256(salt.encode() + password.encode()).digest())
     key = pbkdf2_hmac('sha256',inputPassword.encode(),''.encode(),10000,8)
-    # 4-byte nonce
-    nonce = Random.new().read(int(DES.block_size/2))
     # 32-bit counter
-    ctr = Counter.new(DES.block_size*4, prefix=nonce)
+    ctr = Counter.new(DES.block_size*8, prefix=b'')
 
     cipher = DES.new(key, DES.MODE_CTR, counter=ctr)
     ct = cipher.encrypt(data)
 
-    print("Key:",key)
-    print("Nonce:",nonce)
-    print("Ciphertext:",ct)
-    print("Encryption is completed successfully\n\n")
     inputFile.close()
+    return {"error":False,"key":key,"ct":ct}
 
-    return {"error":False,"key":key,"nonce":nonce,"ct":ct}
-
-def write_ciphertext(inputFilePath,key,nonce,ct,hmac):
+def write_ciphertext(inputFilePath,key,ct,hmac):
     encFilePath = splitext(inputFilePath)[0] + '.enc'
     encFile = open(encFilePath,'w')
 
     key = b64encode(key).decode('utf-8')
-    nonce = b64encode(nonce).decode('utf-8')
     ct = b64encode(ct).decode('utf-8')
     hmac = b64encode(hmac).decode('utf-8')
 
-    msg = key + nonce + ct + hmac
+    msg = key + ct + hmac
     encFile.write(msg)
     encFile.close()
     return {"error":False,"title":"Success","msg":"File is encrypted successfully\nEncrypted file is stored at the same folder with .enc extension"}
@@ -79,15 +71,8 @@ def read_ciphertext(encFilePath,inputPassword):
 
     encData = encFile.read()
     key = encData[0:12]
-    nonce = encData[12:20]
-    ct = encData[20:-28]
-    hmac = encData[len(key)+len(nonce)+len(ct):]
-
-    print("Received:",encData)
-    print("Key:",key)
-    print("Nonce:",nonce)
-    print("Ciphertext:",ct)
-    print("HMAC:",hmac)
+    ct = encData[12:-28]
+    hmac = encData[len(key)+len(ct):]
     
     try:
         key = b64decode(key)
@@ -96,26 +81,24 @@ def read_ciphertext(encFilePath,inputPassword):
         if not(inputKey == key):
             return {"error":True,"title":"Incorrect Password","msg":"Please enter the correct password"}
 
-        nonce = b64decode(nonce)
         ct = b64decode(ct)
         hmac = b64decode(hmac)
         
     except BaseException as err:
         return {"error":True,"title":"Changed File","msg":"The encrypted file has been changed"}
     
-    return {"error":False,"key":key,"nonce":nonce,"ct":ct,"hmac":hmac}
+    return {"error":False,"key":key,"ct":ct,"hmac":hmac}
 
-def decrypt(encFilePath,key,nonce,ct):
+def decrypt(encFilePath,key,ct):
     encryptedFilePathObj = splitext(encFilePath)
     decFilePath = encryptedFilePathObj[0] + '-out.txt'
     decFile = open(decFilePath,'w')
 
     # # 32-bit counter
-    ctr = Counter.new(DES.block_size*4, prefix=nonce)
+    ctr = Counter.new(DES.block_size*8, prefix=b'')
     cipher = DES.new(key, DES.MODE_CTR, counter=ctr)
     data = cipher.decrypt(ct).decode()
 
-    print("Decryption is completed successfully")
     decFile.write(data)
     decFile.close()
     startfile(decFilePath)

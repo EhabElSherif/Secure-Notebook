@@ -62,7 +62,7 @@ class SecureNotebook(pygubu.TkApplication):
         self.progressLbl.update()
         sleep(1)
 
-        response = write_ciphertext(self.inputFilePathValue,response["key"],response["nonce"],response["ct"],hmac)
+        response = write_ciphertext(self.inputFilePathValue,response["key"],response["ct"],hmac)
         
         self.progressLbl["text"]="Done..."
         self.progressLbl.update()
@@ -106,7 +106,7 @@ class SecureNotebook(pygubu.TkApplication):
         self.progressLbl["text"]="Decrypting..."
         self.progressLbl.update()
         sleep(1)
-        decrypt(self.inputFilePathValue,response["key"],response["nonce"],response["ct"])
+        decrypt(self.inputFilePathValue,response["key"],response["ct"])
 
         self.progressLbl["text"]="Decryption is completed..."
         self.progressLbl.update()
